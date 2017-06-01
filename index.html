@@ -1,0 +1,91 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
+  integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ=="
+  crossorigin=""/>
+
+  <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"
+   integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg=="
+   crossorigin=""></script>
+
+   <style>
+   #map { height: 100%; width: 100%; }
+</style>
+</head>
+
+<body>
+
+  <div id="map"></div>
+
+</body>
+
+
+<script>
+var alexanderplatz = [52.522032, 13.412718];
+var centroid = [52.522032, 13.412718];
+var map = L.map('map').setView(centroid, 6);
+
+var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+L.tileLayer(osmUrl, {
+}).addTo(map);
+
+
+fetch("./data/de.4326.geo.json")
+  .then(res => res.json())
+  .then((data)=>{
+    // console.log(data.features[0].geometry.coordinates.length);
+    drawpoly(data.features[0].geometry.coordinates[90][0]);
+  });
+
+// L.marker([51.5, -0.09]).addTo(map)
+//     .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+//     .openPopup();
+
+function drawpoly(polygon)
+{
+  //console.log(polygon);
+  calcea(polygon)
+  //console.log(polygon[1])
+  // console.log(polygon.map(c => { return [c[1], c[0]]}));
+  var p = L.polygon(polygon.map(c => { return [c[1], c[0]]})).addTo(map);
+  map.fitBounds(p.getBounds());
+}
+
+function calcea(polygon)
+{
+  // for each point triplet (skipping first & last)
+  for (var p=1; p<polygon.length-1; p++)
+  {
+    var a = area([polygon[p-1], polygon[p], polygon[p+1]]);
+    if (p < 5) console.log(a);
+    //polygon[p][3] = a;
+
+  }
+}
+
+function area(tri)
+{
+  let a = length(tri[0], tri[1]);
+  let b = length(tri[1], tri[2]);
+  let c = length(tri[2], tri[0]);
+  let s = (a + b + c) / 2;
+
+  return Math.sqrt(
+      s * (s - a) * (s - b) * (s - c)
+  );
+
+}
+
+function length(a, b)
+{
+  var xdiff = b[0] - a[0];
+  var ydiff = b[1] - a[1];
+
+  return Math.sqrt( xdiff*xdiff + ydiff*ydiff );
+
+}
+
+    </script>
+</html>
