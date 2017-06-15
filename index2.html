@@ -1,0 +1,201 @@
+<html>
+
+<head>
+  <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
+  integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ=="
+  crossorigin=""/> -->
+
+  <link rel="stylesheet" href="./extrn/leaflet.css"  />
+
+  <!-- <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"
+   integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg=="
+   crossorigin=""></script> -->
+
+   <script src="./extrn/leaflet.js"
+    integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg=="
+    crossorigin=""></script>
+
+   <style>
+   #map { height: 100%; width: 100%; }
+</style>
+</head>
+
+<body>
+
+  <div id="map"></div>
+
+</body>
+
+
+<script>
+var alexanderplatz = [52.522032, 13.412718];
+var centroid = [52.522032, 13.412718];
+var map = L.map('map').setView(centroid, 6);
+const AREA = 2, PREV = 3, NEXT = 4;
+
+// var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+//
+// L.tileLayer(osmUrl, {
+// }).addTo(map);
+
+
+fetch("./data/de.4326.geo.json")
+  .then(res => res.json())
+  .then((data)=>{
+    // console.log(data.features[0].geometry.coordinates.length);
+    drawpoly(data.features[0].geometry.coordinates[90][0]);
+  });
+
+// L.marker([51.5, -0.09]).addTo(map)
+//     .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+//     .openPopup();
+
+function subset(polygon, max)
+{
+  let m = max || 5000;
+  let out = [];
+  for (let p=0; p<m; p++) out.push(polygon[p]);
+  return out;
+}
+
+function drawpoly(polygon)
+{
+  polygon = subset(polygon, 5000);
+
+  initea(polygon)
+
+  console.log("Num points: ", polygon.length);
+  dwindle(polygon, 4998);
+  let bounds = getareabounds(polygon);
+
+  console.log("min, max: ", bounds);
+
+  let middle = (bounds[0] + bounds[1]) / 32768;
+  
+
+  // console.log("Removed 1000 points");
+
+  //var reduced = polygon.filter(p => {return p[NEXT]!=-1 && p[PREV]!=-1 });
+  var reduced = polygon.filter(p => {return p[AREA] >= middle });
+
+  console.log("reduced (half) points = ", reduced.length);
+
+  //return;
+
+
+  var p = L.polygon(reduced.map(c => { return [c[1], c[0]]})).addTo(map);
+  map.fitBounds(p.getBounds());
+
+}
+
+function dwindle(polygon, numtoremove)
+{
+  let startpoint = 0, endpoint = polygon.length-1;
+
+  while (--numtoremove)
+  {
+    // find the least significant point
+    let p = findnext(polygon);
+
+    let ppoint = polygon[p][PREV]; // p's previous point
+    let npoint = polygon[p][NEXT]; // p's next
+
+    // join the dots left orphaned by p's removal
+    polygon[ppoint][NEXT] = polygon[p][NEXT];
+    polygon[npoint][PREV] = polygon[p][PREV];
+
+    // mark p as removed;
+    polygon[p][PREV] = -1;
+    polygon[p][NEXT] = -1;
+
+    // finally recalc neighbours
+    if (ppoint != startpoint)
+      recalc(polygon[ppoint], polygon);
+    if (npoint != endpoint)
+      recalc(polygon[npoint], polygon);
+  }
+ }
+
+function getareabounds(polygon)
+{
+  let min = Number.MAX_VALUE;
+  let max = 0;
+  for (let p=1; p<polygon.length-1; p++)
+  {
+    max = Math.max(max, polygon[p][AREA]);
+    min = Math.min(min, polygon[p][AREA]);
+  }
+  return [min, max];
+}
+
+function recalc(point, polygon)
+{
+  let prev = polygon[point[PREV]];
+  let next = polygon[point[NEXT]];
+  point[AREA] = area([prev, point, next]);
+}
+
+// replace this with minheap
+// From the whole set, find the smallest area point that hasn't been removed yet
+function findnext(polygon)
+{
+  var minarea = Number.MAX_VALUE;
+  var i = -1;
+  for (var p=1; p<polygon.length-1; p++)
+  {
+    if (polygon[p][PREV] != -1 && polygon[p][NEXT] != -1 && polygon[p][AREA] < minarea)
+    {
+      minarea = polygon[p][AREA];
+      i = p;
+    }
+  }
+
+  return i;
+}
+
+function initea(polygon)
+{
+  for (var p=1; p<polygon.length-1; p++)
+  {
+    polygon[p][PREV] = p-1; // prev
+    polygon[p][NEXT] = p+1; // next
+  }
+
+  // for each point triplet (skipping first & last)
+  for (var p=1; p<polygon.length-1; p++)
+  {
+    let pprev = polygon[p][PREV], pnext = polygon[p][NEXT];
+    var a = area([polygon[pprev], polygon[p], polygon[pnext]]);
+    polygon[p][AREA] = a;
+    // polygon[p][PREV] = p-1; // prev
+    // polygon[p][NEXT] = p+1; // next
+    //if (p < 5) console.log(polygon[p]);
+
+  }
+}
+
+
+function area(tri)
+{
+  let a = length(tri[0], tri[1]);
+  let b = length(tri[1], tri[2]);
+  let c = length(tri[2], tri[0]);
+  let s = (a + b + c) / 2;
+
+  return Math.sqrt(
+      s * (s - a) * (s - b) * (s - c)
+  );
+
+}
+
+function length(a, b)
+{
+  var xdiff = b[0] - a[0];
+  var ydiff = b[1] - a[1];
+
+  return Math.sqrt( xdiff*xdiff + ydiff*ydiff );
+
+}
+
+    </script>
+</html>
