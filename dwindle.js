@@ -43,14 +43,27 @@ export default class Dwindle
     this.minarea = Number.MAX_VALUE;
     this.maxarea = -1;
 
+    let lastArea = 0;
+
     while((p = this.q.pop()))
     {
       let prev = this.meta[p].prev;
       let next = this.meta[p].next;
 
+      // This is basically a hack on the algorithm that
+      // ensures points are selected in proper order
+      // if (this.meta[p].area < lastArea)
+      // {
+      //   // this.meta[p].area = lastArea;
+      //   console.log("out of order")
+      //   this.q.push(this.q.pop());
+      // }
+
+      // lastArea = this.meta[p].area;
+
       if (this.meta[p].area > 0)
         this.minarea = Math.min(this.minarea, this.meta[p].area);
-        
+
       this.maxarea = Math.max(this.maxarea, this.meta[p].area);
 
       // join the dots left orphaned by p's removal

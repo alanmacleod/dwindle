@@ -33,11 +33,9 @@ fetch("./data/de.4326.geo.json")
     if (shape)
       shape.remove();
 
-    let y = d.minarea * Math.pow(d.maxarea/d.minarea, f);
+    let area = d.minarea * Math.pow(d.maxarea/d.minarea, f);
 
-    let simple = d.simplify(y);
-
-    console.log(simple.length);
+    let simple = d.simplify(area);
 
     shape = L.polygon(simple.map(c => { return [c[1], c[0]]})).addTo(map);
   })
