@@ -18,28 +18,28 @@ fetch("./data/de.4326.geo.json")
     let deutschland = data.features[0].geometry.coordinates[90][0];
     d = new Dwindle(deutschland);
 
-    let simple = d.simplify(0.001);
-
     // Leaflet expects lat, lon (y, x) ordering of coords so .map() them first
-    shape = L.polygon(simple.map(c => { return [c[1], c[0]]})).addTo(map);
+    shape = L.polygon(deutschland.map(c => { return [c[1], c[0]]})).addTo(map);
     map.fitBounds(shape.getBounds());
   });
 
 
   map.on('mousemove', (m) => {
+    if (!d) return;
+
     let x = m.containerPoint.x;
     let f = x / container.clientWidth;
 
-    let area = d.minarea + ((d.maxarea/100 - d.minarea) * f);
+    if (shape)
+      shape.remove();
 
-    shape.remove();
+    let y = d.minarea * Math.pow(d.maxarea/d.minarea, f);
 
-    let simple = d.simplify(area);
-
-    // Leaflet expects lat, lon (y, x) ordering of coords so .map() them first
-    shape = L.polygon(simple.map(c => { return [c[1], c[0]]})).addTo(map);
+    let simple = d.simplify(y);
 
     console.log(simple.length);
+
+    shape = L.polygon(simple.map(c => { return [c[1], c[0]]})).addTo(map);
   })
 
 //Julius / selina, oslo astra

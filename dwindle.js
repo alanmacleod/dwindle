@@ -48,7 +48,9 @@ export default class Dwindle
       let prev = this.meta[p].prev;
       let next = this.meta[p].next;
 
-      this.minarea = Math.min(this.minarea, this.meta[p].area);
+      if (this.meta[p].area > 0)
+        this.minarea = Math.min(this.minarea, this.meta[p].area);
+        
       this.maxarea = Math.max(this.maxarea, this.meta[p].area);
 
       // join the dots left orphaned by p's removal
