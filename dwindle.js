@@ -5,6 +5,22 @@ export default class Dwindle
 {
   constructor(points)
   {
+    this.rebuild(points);
+  }
+
+  simplify(area)
+  {
+    return this.points.filter((p,i) => {
+      // always return the first and last points
+      if (i < this.minpoint || i > this.maxpoint) return true;
+
+      // otherwise return this point if deemed significant
+      return this.meta[i].area >= area
+    });
+  }
+
+  rebuild(points)
+  {
     // Descriptor array for every point in `this.points[]`
     this.meta = [];
 
@@ -24,17 +40,6 @@ export default class Dwindle
     this.dwindle();
   }
 
-  simplify(area)
-  {
-    return this.points.filter((p,i) => {
-      // always return the first and last points
-      if (i < this.minpoint || i > this.maxpoint) return true;
-
-      // otherwise return this point if deemed significant
-      return this.meta[i].area >= area
-    });
-  }
-
   // Called only once to calculate areas
   dwindle()
   {
@@ -43,23 +48,10 @@ export default class Dwindle
     this.minarea = Number.MAX_VALUE;
     this.maxarea = -1;
 
-    let lastArea = 0;
-
     while((p = this.q.pop()))
     {
       let prev = this.meta[p].prev;
       let next = this.meta[p].next;
-
-      // This is basically a hack on the algorithm that
-      // ensures points are selected in proper order
-      // if (this.meta[p].area < lastArea)
-      // {
-      //   // this.meta[p].area = lastArea;
-      //   console.log("out of order")
-      //   this.q.push(this.q.pop());
-      // }
-
-      // lastArea = this.meta[p].area;
 
       if (this.meta[p].area > 0)
         this.minarea = Math.min(this.minarea, this.meta[p].area);
@@ -81,7 +73,6 @@ export default class Dwindle
         this.meta[next].area = this.recalc(next);
       }
 
-      // Fudge EA here if adjacent recalc'd areas are smaller than P's
     }
   }
 
@@ -108,7 +99,7 @@ export default class Dwindle
         area: this.area([ this.points[i-1], p, this.points[i+1] ])
       };
 
-      // Math.sqrt() returns NaN for impossible unrepresentable small numbers
+      // Math.sqrt() returns NaN for unrepresentable small numbers
       if (isNaN(t.area)) t.area = 0;
 
       this.meta[i] = t;
