@@ -60,28 +60,30 @@ function subset(polygon, max)
 
 function drawpoly(polygon)
 {
-  polygon = subset(polygon, 5000);
+  // polygon = subset(polygon, 5000);
+  //
+  // initea(polygon)
+  //
+  // console.log("Num points: ", polygon.length);
+  // dwindle(polygon, 4998);
+  // let bounds = getareabounds(polygon);
+  //
+  // console.log("min, max: ", bounds);
+  //
+  // let middle = (bounds[0] + bounds[1]) / 32768;
+  //
+  //
+  // // console.log("Removed 1000 points");
+  //
+  // //var reduced = polygon.filter(p => {return p[NEXT]!=-1 && p[PREV]!=-1 });
+  // var reduced = polygon.filter(p => {return p[AREA] >= middle });
+  //
+  // console.log("reduced (half) points = ", reduced.length);
+  //
+  // //return;
+  //
 
-  initea(polygon)
-
-  console.log("Num points: ", polygon.length);
-  dwindle(polygon, 4998);
-  let bounds = getareabounds(polygon);
-
-  console.log("min, max: ", bounds);
-
-  let middle = (bounds[0] + bounds[1]) / 32768;
-
-
-  // console.log("Removed 1000 points");
-
-  //var reduced = polygon.filter(p => {return p[NEXT]!=-1 && p[PREV]!=-1 });
-  var reduced = polygon.filter(p => {return p[AREA] >= middle });
-
-  console.log("reduced (half) points = ", reduced.length);
-
-  //return;
-
+  reduced = polygon;
 
   var p = L.polygon(reduced.map(c => { return [c[1], c[0]]})).addTo(map);
   map.fitBounds(p.getBounds());

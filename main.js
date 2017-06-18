@@ -1,41 +1,29 @@
 
-"#ifndef PI"
-  "#define PI 3.141592653589793"
-"#endif"
 
-import nanoq from 'nanoq';
+import dwindle from './dwindle.js';
+import L from 'leaflet';
 
-let nq = new nanoq(null, function(a,b){
-  return a > b;
-});
+let d;
 
-for (var t=0; t<100; t++)
-{
-  nq.push((Math.random()*100)>>0);
-}
+let de;
+let map = L.map('map').setView([52.522032, 13.412718], 6);
+let url ='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+L.tileLayer(url, {}).addTo(map);
+
+fetch("./data/de.4326.geo.json")
+  .then(res => res.json())
+  .then((data)=>{
+    // console.log(data.features[0].geometry.coordinates.length);
+    // drawpoly(data.features[0].geometry.coordinates[90][0]);
+    de = data.features[0].geometry.coordinates[90][0];
+    d = new dwindle(de);
+
+    var p = L.polygon(de.map(c => { return [c[1], c[0]]})).addTo(map);
+    map.fitBounds(p.getBounds());
+  });
 
 
-"#ifdef PI"
-  console.log(nq.tree);
-"#endif"
 
-
-for (var t=0; t<nq.length(); t++)
-{
-  console.log(nq.pop());
-}
-
-// for (var t=0; t<1000; t++)
-// {
-//   nq.push((Math.random()*1000)>>0);
-// }
-// console.log(nq.tree);
-//
-// console.log("Pop...");
-//
-// for (var t=0; t<1000; t++)
-// {
-//   console.log(nq.pop());
-// }
 
 //Julius / selina, oslo astra

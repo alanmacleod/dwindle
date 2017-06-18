@@ -1,11 +1,14 @@
 
+import nanoq from 'nanoq';
+
 export default class dwindle
 {
   constructor(points)
   {
     this.meta = [];
-    this.init(points);
+    this.q = new nanoq(null, (a, b) => { a.area > b.area });
 
+    this.init(points);
   }
 
   // For each point we're given, store the next/prev and area
@@ -14,11 +17,14 @@ export default class dwindle
     for (let i=1; i<points.length-1; i++)
     {
       let p = points[i];
-      this.meta.push({
+      let t = {
         prev: i-1,
         next: i+1,
         area: this.area([ points[i-1], p, points[i+1] ])
-      });
+      };
+
+      this.meta.push(t);
+      q.push(t)
     }
   }
 
