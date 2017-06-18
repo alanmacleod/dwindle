@@ -1,5 +1,7 @@
 
 import Dwindle from './dwindle.js';
+// import omghelp from './wtf.js';
+
 import L from 'leaflet';
 
 let d, shape, deutschland;
@@ -9,6 +11,15 @@ let info = document.getElementById('info');
 
 let map = L.map(container).setView([52.522032, 13.412718], 6);
 let url ='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+// let max = new omghelp(null, (a, b) => a > b);
+//
+// for (let w=0; w<100; w++)
+//   max.push(w);
+//
+// for (let w=0; w<100; w++)
+//   console.log(max.pop());
+
 
 L.tileLayer(url, {}).addTo(map);
 
@@ -24,6 +35,7 @@ fetch("./data/de.4326.geo.json")
     map.fitBounds(shape.getBounds());
   });
 
+  let done = false;
 
   map.on('mousemove', (m) => {
     if (!d) return;
@@ -32,23 +44,20 @@ fetch("./data/de.4326.geo.json")
     let f = x / container.clientWidth;
 
     // Exp function for a pleasing interactive demo
-    let area = d.minarea * Math.pow(d.maxarea/d.minarea, 0.5 + (f/2));
+    let area = d.minarea * Math.pow(d.maxarea/d.minarea, 0.5 + f/2);
 
     // Select the points we want by area
     let simple = d.simplify({area:area});
 
-    // simple = d.simplify({target:999});
-
-    // Limit to showing a half-decent shape!
-    // if (simple.length < 8) return;
-    // console.log(simple);
+    // Limit to showing a half-decent shape
+    if (simple.length < 9) return;
 
     // Clear the old shape on the map
     if (shape)
       shape.remove();
 
     let pc = ((simple.length / deutschland.length) * 100).toFixed(2);
-    info.innerHTML = `${simple.length} points (${pc}%)`;
+    info.innerHTML = `${simple.length} points (${pc}%) (${area})`;
 
     // Add the new shape
     shape = L.polygon(simple.map(c => { return [c[1], c[0]]})).addTo(map);

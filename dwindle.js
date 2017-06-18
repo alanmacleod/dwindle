@@ -28,15 +28,17 @@ export default class Dwindle
       let pc = options.percent;
       let count = pc ? ((pc / 100) * this.points.length) >> 0 : options.target;
 
-      let max = new nanoq(null, (a, b) => { this.meta[a].area > this.meta[b].area });
+      let max = new nanoq(null, (a, b) => this.meta[a].area < this.meta[b].area );
 
       for (let i=this.minpoint; i<=this.maxpoint; i++)
         max.push(i);
 
-      let out = [this.points[this.minpoint-1], this.points[this.maxpoint+1]];
+      let out = [];
+
+      // 100 pts = 0.03202740201723358;
 
       while (count--)
-        out.push(this.points[max.pop()]);
+         out.push(this.points[max.pop()]);
 
       return out;
     }
@@ -51,7 +53,7 @@ export default class Dwindle
     this.points = points;
 
     // minheap to order the simplification
-    this.q = new nanoq(null, (a, b) => { this.meta[a].area > this.meta[b].area });
+    this.q = new nanoq(null, (a, b) =>  this.meta[a].area > this.meta[b].area );
 
     this.minpoint = 1;
     this.maxpoint = this.points.length-2;
@@ -71,6 +73,7 @@ export default class Dwindle
     this.minarea = Number.MAX_VALUE;
     this.maxarea = -1;
 
+    //Process all points in order of area significance
     while((p = this.q.pop()))
     {
       let prev = this.meta[p].prev;
