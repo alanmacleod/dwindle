@@ -1,14 +1,14 @@
 
 import nanoq from 'nanoq';
 
-export default class dwindle
+export default class Dwindle
 {
   constructor(points)
   {
     // Descriptor array for every point in `this.points[]`
     this.meta = [];
 
-    // Store a reference to the point data
+    // Store a reference to the user's point data
     this.points = points;
 
     // minheap to order the simplification
@@ -24,11 +24,15 @@ export default class dwindle
   simplify(area)
   {
     return this.points.filter((p,i) => {
-      if (i < this.minpoint || i > this.maxpoint) return false;
+      // always return the first and last points
+      if (i < this.minpoint || i > this.maxpoint) return true;
+
+      // otherwise return this point if deemed significant
       return this.meta[i].area >= area
     });
   }
 
+  // Called only once to calculate areas
   dwindle()
   {
     let p;
@@ -40,28 +44,24 @@ export default class dwindle
       let next = this.meta[p].next;
 
       // join the dots left orphaned by p's removal
-      // finally recalc neighbours
+      // and recalc neighbours' areas
       if (prev >= this.minpoint)
       {
         this.meta[prev].next = next;
-        this.meta[prev].area = this.calc(prev);
+        this.meta[prev].area = this.recalc(prev);
       }
 
       if (next <= this.maxpoint)
       {
         this.meta[next].prev = prev;
-        this.meta[next].area = this.calc(next);
+        this.meta[next].area = this.recalc(next);
       }
 
-      this.meta[p].prev = -1;
-      this.meta[p].next = -1;
-
+      // Fudge EA here if adjacent recalc'd areas are smaller than P's
     }
   }
 
-  // For each point we're given, store the next/prev and area
-
-  calc(p)  // p = index into this.points[]
+  recalc(p)  // p = index into this.points[]
   {
     let prev = this.meta[p].prev;
     let next = this.meta[p].next;
@@ -69,6 +69,10 @@ export default class dwindle
     return this.area([this.points[prev], this.points[p], this.points[next]]);
   }
 
+    // For each point given;
+    //  - create a next/prev pointer
+    //  - calculate the area of the point with its neighbours
+    //  - add the point to our minheap (which uses its area)
   init()
   {
     for (let i=1; i<this.points.length-1; i++)
