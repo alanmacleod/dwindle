@@ -8,15 +8,38 @@ export default class Dwindle
     this.rebuild(points);
   }
 
-  simplify(area)
+  simplify(options)
   {
-    return this.points.filter((p,i) => {
-      // always return the first and last points
-      if (i < this.minpoint || i > this.maxpoint) return true;
+    // Select points by significance (area)
+    if (options.area)
+    {
+      return this.points.filter((p,i) => {
+        // always return the first and last points
+        if (i < this.minpoint || i > this.maxpoint) return true;
 
-      // otherwise return this point if deemed significant
-      return this.meta[i].area >= area
-    });
+        // otherwise return this point if deemed significant
+        return this.meta[i].area >= options.area
+      });
+    }
+
+    // Select specific target point count
+    if (options.target || options.percent)
+    {
+      let pc = options.percent;
+      let count = pc ? ((pc / 100) * this.points.length) >> 0 : options.target;
+
+      let max = new nanoq(null, (a, b) => { this.meta[a].area > this.meta[b].area });
+
+      for (let i=this.minpoint; i<=this.maxpoint; i++)
+        max.push(i);
+
+      let out = [this.points[this.minpoint-1], this.points[this.maxpoint+1]];
+
+      while (count--)
+        out.push(this.points[max.pop()]);
+
+      return out;
+    }
   }
 
   rebuild(points)
@@ -28,7 +51,7 @@ export default class Dwindle
     this.points = points;
 
     // minheap to order the simplification
-    this.q = new nanoq(points.length, (a, b) => { this.meta[a].area > this.meta[b].area });
+    this.q = new nanoq(null, (a, b) => { this.meta[a].area > this.meta[b].area });
 
     this.minpoint = 1;
     this.maxpoint = this.points.length-2;

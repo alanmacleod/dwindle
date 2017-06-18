@@ -1,5 +1,4 @@
 
-
 import Dwindle from './dwindle.js';
 import L from 'leaflet';
 
@@ -32,19 +31,26 @@ fetch("./data/de.4326.geo.json")
     let x = m.containerPoint.x;
     let f = x / container.clientWidth;
 
+    // Exp function for a pleasing interactive demo
     let area = d.minarea * Math.pow(d.maxarea/d.minarea, 0.5 + (f/2));
 
-    let simple = d.simplify(area);
+    // Select the points we want by area
+    let simple = d.simplify({area:area});
 
-    if (simple.length < 8) return;
+    // simple = d.simplify({target:999});
 
+    // Limit to showing a half-decent shape!
+    // if (simple.length < 8) return;
+    // console.log(simple);
+
+    // Clear the old shape on the map
     if (shape)
       shape.remove();
 
     let pc = ((simple.length / deutschland.length) * 100).toFixed(2);
-
     info.innerHTML = `${simple.length} points (${pc}%)`;
 
+    // Add the new shape
     shape = L.polygon(simple.map(c => { return [c[1], c[0]]})).addTo(map);
   })
 
