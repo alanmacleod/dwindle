@@ -17,6 +17,9 @@ export default class Dwindle
     this.minpoint = 1;
     this.maxpoint = this.points.length-2;
 
+    this.minarea = 0;
+    this.maxarea = 0;
+
     this.init();
     this.dwindle();
   }
@@ -36,15 +39,21 @@ export default class Dwindle
   dwindle()
   {
     let p;
-    let startpoint = 0, endpoint = this.points.length-1;
+
+    this.minarea = Number.MAX_VALUE;
+    this.maxarea = -1;
 
     while((p = this.q.pop()))
     {
       let prev = this.meta[p].prev;
       let next = this.meta[p].next;
 
+      this.minarea = Math.min(this.minarea, this.meta[p].area);
+      this.maxarea = Math.max(this.maxarea, this.meta[p].area);
+
       // join the dots left orphaned by p's removal
       // and recalc neighbours' areas
+
       if (prev >= this.minpoint)
       {
         this.meta[prev].next = next;
@@ -65,8 +74,8 @@ export default class Dwindle
   {
     let prev = this.meta[p].prev;
     let next = this.meta[p].next;
-
-    return this.area([this.points[prev], this.points[p], this.points[next]]);
+    let a = this.area([this.points[prev], this.points[p], this.points[next]]);
+    return isNaN(a)? 0 : a;
   }
 
     // For each point given;
@@ -83,6 +92,9 @@ export default class Dwindle
         next: i+1,
         area: this.area([ this.points[i-1], p, this.points[i+1] ])
       };
+
+      // Math.sqrt() returns NaN for impossible unrepresentable small numbers
+      if (isNaN(t.area)) t.area = 0;
 
       this.meta[i] = t;
       this.q.push(i);
