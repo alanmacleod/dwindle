@@ -19,7 +19,10 @@ fetch("./data/de.4326.geo.json")
     de = data.features[0].geometry.coordinates[90][0];
     d = new dwindle(de);
 
-    var p = L.polygon(de.map(c => { return [c[1], c[0]]})).addTo(map);
+    let simple = d.simplify(0.01);
+    console.log(simple);
+
+    var p = L.polygon(simple.map(c => { return [c[1], c[0]]})).addTo(map);
     map.fitBounds(p.getBounds());
   });
 

@@ -5,34 +5,91 @@ export default class dwindle
 {
   constructor(points)
   {
+    // Descriptor array for every point in `this.points[]`
     this.meta = [];
-    this.q = new nanoq(null, (a, b) => { a.area > b.area });
 
-    this.init(points);
+    // Store a reference to the point data
+    this.points = points;
+
+    // minheap to order the simplification
+    this.q = new nanoq(points.length, (a, b) => { this.meta[a].area > this.meta[b].area });
+
+    this.minpoint = 1;
+    this.maxpoint = this.points.length-2;
+
+    this.init();
+    this.dwindle();
   }
 
-  // For each point we're given, store the next/prev and area
-  init(points)
+  simplify(area)
   {
-    for (let i=1; i<points.length-1; i++)
-    {
-      let p = points[i];
-      let t = {
-        prev: i-1,
-        next: i+1,
-        area: this.area([ points[i-1], p, points[i+1] ])
-      };
+    return this.points.filter((p,i) => {
+      if (i < this.minpoint || i > this.maxpoint) return false;
+      return this.meta[i].area >= area
+    });
+  }
 
-      this.meta.push(t);
-      q.push(t)
+  dwindle()
+  {
+    let p;
+    let startpoint = 0, endpoint = this.points.length-1;
+
+    while((p = this.q.pop()))
+    {
+      let prev = this.meta[p].prev;
+      let next = this.meta[p].next;
+
+      // join the dots left orphaned by p's removal
+      // finally recalc neighbours
+      if (prev >= this.minpoint)
+      {
+        this.meta[prev].next = next;
+        this.meta[prev].area = this.calc(prev);
+      }
+
+      if (next <= this.maxpoint)
+      {
+        this.meta[next].prev = prev;
+        this.meta[next].area = this.calc(next);
+      }
+
+      this.meta[p].prev = -1;
+      this.meta[p].next = -1;
+
     }
   }
 
-  area(triangle)
+  // For each point we're given, store the next/prev and area
+
+  calc(p)  // p = index into this.points[]
   {
-    let a = length(tri[0], tri[1]);
-    let b = length(tri[1], tri[2]);
-    let c = length(tri[2], tri[0]);
+    let prev = this.meta[p].prev;
+    let next = this.meta[p].next;
+
+    return this.area([this.points[prev], this.points[p], this.points[next]]);
+  }
+
+  init()
+  {
+    for (let i=1; i<this.points.length-1; i++)
+    {
+      let p = this.points[i];
+      let t = {
+        prev: i-1,
+        next: i+1,
+        area: this.area([ this.points[i-1], p, this.points[i+1] ])
+      };
+
+      this.meta[i] = t;
+      this.q.push(i);
+    }
+  }
+
+  area(tri)
+  {
+    let a = this.dist(tri[0], tri[1]);
+    let b = this.dist(tri[1], tri[2]);
+    let c = this.dist(tri[2], tri[0]);
     let s = (a + b + c) / 2;
 
     return Math.sqrt(
@@ -40,7 +97,7 @@ export default class dwindle
     );
   }
 
-  length(a, b)
+  dist(a, b)
   {
     var xdiff = b[0] - a[0];
     var ydiff = b[1] - a[1];
