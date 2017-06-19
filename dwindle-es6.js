@@ -1,16 +1,14 @@
 
-var nanoq = require('nanoq');
+import nanoq from 'nanoq';
 
-module.exports = Dwindle;
-
-function Dwindle(points)
+export default class Dwindle
 {
-  this.rebuild(points);
-}
+  constructor(points)
+  {
+    this.rebuild(points);
+  }
 
-Dwindle.prototype = {
-
-  simplify: function(options)
+  simplify(options)
   {
     // Select points by significance (area)
     // Easiest to implement, but least useful to the user
@@ -65,9 +63,9 @@ Dwindle.prototype = {
 
       return out;
     }
-  },
+  }
 
-  rebuild: function(points)
+  rebuild(points)
   {
     // Descriptor array for every point in `this.points[]`
     this.meta = [];
@@ -86,10 +84,10 @@ Dwindle.prototype = {
 
     this.init();
     this.dwindle();
-  },
+  }
 
   // Called only once to calculate areas
-  dwindle: function()
+  dwindle()
   {
     let p;
 
@@ -123,21 +121,21 @@ Dwindle.prototype = {
       }
 
     }
-  },
+  }
 
-  recalc: function(p)  // p = index into this.points[]
+  recalc(p)  // p = index into this.points[]
   {
     let prev = this.meta[p].prev;
     let next = this.meta[p].next;
     let a = this.area([this.points[prev], this.points[p], this.points[next]]);
     return isNaN(a)? 0 : a;
-  },
+  }
 
     // For each point given;
     //  - create a next/prev pointer
     //  - calculate the area of the point with its neighbours
     //  - add the point to our minheap (which uses its area)
-  init: function()
+  init()
   {
     for (let i=1; i<this.points.length-1; i++)
     {
@@ -154,9 +152,9 @@ Dwindle.prototype = {
       this.meta[i] = t;
       this.q.push(i);
     }
-  },
+  }
 
-  area: function(tri)
+  area(tri)
   {
     let a = this.dist(tri[0], tri[1]);
     let b = this.dist(tri[1], tri[2]);
@@ -166,9 +164,9 @@ Dwindle.prototype = {
     return Math.sqrt(
         s * (s - a) * (s - b) * (s - c)
     );
-  },
+  }
 
-  dist: function(a, b)
+  dist(a, b)
   {
     var xdiff = b[0] - a[0];
     var ydiff = b[1] - a[1];
