@@ -1,7 +1,9 @@
 
 var Dwindle = require('./dwindle.js');
 
-import L from 'leaflet';
+// import L from 'leaflet';
+
+let L = window.L;
 
 let dwin, shape, deutschland;
 
@@ -10,6 +12,8 @@ let info = document.getElementById('info');
 
 let map = L.map(container).setView([52.522032, 13.412718], 6);
 let url ='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+info.innerHTML = "Loading test data, please wait...";
 
 L.tileLayer(url, {}).addTo(map);
 
@@ -23,6 +27,8 @@ fetch("./data/de.4326.geo.json")
     // Leaflet expects lat, lon (y, x) ordering of coords so .map() them first
     shape = L.polygon(deutschland.map(c => { return [c[1], c[0]]})).addTo(map);
     map.fitBounds(shape.getBounds());
+
+    info.innerHTML = "Ready!";
   });
 
   let done = false;
