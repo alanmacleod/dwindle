@@ -64,7 +64,7 @@ test('Target point reduction', t => {
 });
 
 
-test('Target point reduction', t => {
+test('Percentage reduction', t => {
   // Take four points
   let square = [[0,0], [100, 0], [100,100], [0, 100]];
 
