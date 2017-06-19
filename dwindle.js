@@ -1,10 +1,31 @@
 
 var nanoq = require('nanoq');
 
+var err = "Expected: array of numerical coordinate arrays, e.g. [[0,1],[1,1],[1,0]]";
+
 module.exports = Dwindle;
 
 function Dwindle(points)
 {
+  // Basic type and order checks
+
+  if (!Array.isArray(points))
+    throw new Error(err);
+
+  if (points.length == 0) return;
+
+  let p = points[0];
+  if (!Array.isArray(p))
+    throw new Error(err);
+
+  if (p.length != 2)
+    throw new Error(err);
+
+  if (isNaN(p[0]))
+    throw new Error(err);
+
+  // Seems ok: go johnny go-go go go
+
   this.rebuild(points);
 }
 
