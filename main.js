@@ -49,15 +49,16 @@ fetch("./data/de.4326.geo.json")
     // Select the points we want by area
     let simple = d.simplify({area:area});
 
+    // simple = d.simplify({target:500});
     // Limit to showing a half-decent shape
-    if (simple.length < 9) return;
+    if (simple.length < 6) return;
 
     // Clear the old shape on the map
     if (shape)
       shape.remove();
 
     let pc = ((simple.length / deutschland.length) * 100).toFixed(2);
-    info.innerHTML = `${simple.length} points (${pc}%) (${area})`;
+    info.innerHTML = `${simple.length} points (${pc}%)`;
 
     // Add the new shape
     shape = L.polygon(simple.map(c => { return [c[1], c[0]]})).addTo(map);

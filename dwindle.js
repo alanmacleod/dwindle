@@ -11,6 +11,7 @@ export default class Dwindle
   simplify(options)
   {
     // Select points by significance (area)
+    // Easiest to implement, but least useful to the user
     if (options.area)
     {
       return this.points.filter((p,i) => {
@@ -23,22 +24,39 @@ export default class Dwindle
     }
 
     // Select specific target point count
+    // More practical/useful
     if (options.target || options.percent)
     {
-      let pc = options.percent;
+      let pc = Math.max(Math.min(options.percent, 100),0);
       let count = pc ? ((pc / 100) * this.points.length) >> 0 : options.target;
 
-      let max = new nanoq(null, (a, b) => this.meta[a].area < this.meta[b].area );
+      count = Math.min(this.maxpoint+1, count);
+      count = Math.max(count, 2);
 
+      let max = new nanoq(null, (a, b) => this.meta[a].area < this.meta[b].area );
+      let min = new nanoq();
+
+      // My clumsy implementation involves ordering points by area
+      // significance, selecting the top N, then reordering the list
+      // by winding order (index/id) so they render correctly. Not ideal.
+
+      // Load all area points
       for (let i=this.minpoint; i<=this.maxpoint; i++)
         max.push(i);
 
-      let out = [];
+      let out = [], c = count;
 
-      // 100 pts = 0.03202740201723358;
+      // Output must include endpoints
+      out.push(this.points[0]);
+      out.push(this.points[this.maxpoint+1]);
 
-      while (count--)
-         out.push(this.points[max.pop()]);
+      c = count-2;
+
+      while (c--) min.push(max.pop());
+
+      c = count-2;
+
+      while (c--) out.push(this.points[min.pop()]);
 
       return out;
     }
