@@ -17,9 +17,9 @@ It uses the Visvalingam method which is algorithmically clearer, easier to imple
 ## Usage
 
 Install via npm
-```
-$ npm install dwindle
-```
+
+~~$ npm install dwindle~~
+
 
 Instantiate the object. **Dwindle** expects an array of coordinate-pair arrays as input:
 
