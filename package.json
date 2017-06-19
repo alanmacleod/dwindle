@@ -1,7 +1,7 @@
 {
   "name": "dwindle",
   "version": "0.1.0",
-  "description": "Continuous level of detail geomentry simplification using the Visvalingam area approach. Provides methods for simplifying to a target point count or percentage in addition to point-area significance.",
+  "description": "Fast continuous level of detail geomentry simplification using the Visvalingam area approach. Provides methods for simplifying to a target point count or percentage in addition to point-area significance.",
   "main": "dwindle.js",
   "dependencies": {
     "nanoq": "0.0.3"
@@ -25,10 +25,10 @@
     "type": "git",
     "url": "git+https://github.com/alanmacleod/shape-reduce.git"
   },
-  "author": "Alan MacLeod",
+  "author": "Alan MacLeod <alan@alanmacleod.eu> (http://alanmacleod.eu)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/alanmacleod/shape-reduce/issues"
+    "url": "https://github.com/alanmacleod/dwindle/issues"
   },
-  "homepage": "https://github.com/alanmacleod/shape-reduce#readme"
+  "homepage": "https://github.com/alanmacleod/dwindle#readme"
 }

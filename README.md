@@ -20,8 +20,9 @@ It uses the Visvalingam method which is algorithmically clearer, easier to imple
 
 Install via npm
 
-~~$ npm install dwindle~~
-
+```
+$ npm install dwindle
+```
 
 Instantiate the object. **Dwindle** expects an array of coordinate-pair arrays as input:
 
@@ -32,7 +33,7 @@ let points = [[0,0], [100, 0], [100,100], ... [0, 100]];
 let myshape = new Dwindle(points);
 ```
 
-There are three choices when reducing the data; 
+There are three choices when reducing the data;
 * Specifiying a target point count
 ```js
 let reduced = myshape.simplify({target: 1000}); // reduce to 1000 points
@@ -46,12 +47,12 @@ let reduced = myshape.simplify({percent:50}); // reduce set by half
 let reduced = myshape.simplify({area:0.01}); // by minimum area
 ```
 
-The `.simplify()` method returns an array of coordinate-pair arrays, same as the input. 
+The `.simplify()` method returns an array of coordinate-pair arrays, same as the input.
 
-Note that if your `points` array (the one you pass to the Dwindle constructor) changes and you want the simplifcations to reflect these changes, then you will need to rebuild the index by calling: 
+Note that if your `points` array (the one you pass to the Dwindle constructor) changes and you want the simplifcations to reflect these changes, then you will need to rebuild the index by calling:
 
 ```
 myshape.rebuild(newpoints);
 ```
 
-Rebuilding is fast and can be called multiple times no problem. 
+Rebuilding is fast and can be called multiple times no problem.
