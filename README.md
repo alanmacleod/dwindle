@@ -10,6 +10,8 @@ _**dwindle**_
 _verb_
 - diminish gradually in size, amount, or strength.
 
+[Try the demo here](http://demos.alanmacleod.eu/dwindle/pub/)
+
 This is a geometry simplification tool I've wanted to write for a while cos the Visvalingam algorithm is just cool, basically. It accepts a list of 2d coordinates, which could be the outline of a complex polygon or a line-string (like a route) and simplifies the data in the most visually pleasing and acceptable manor i.e. by retaining the important and 'significant' data where possible.
 
 It uses the Visvalingam method which is algorithmically clearer, easier to implement and I believe more effective and consistent than the classic Douglas-Peucker approach.
